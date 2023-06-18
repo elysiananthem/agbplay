@@ -116,6 +116,7 @@ static void help()
         "  - T: Toggle whether the song should be output to a file (see R and E)\n"
         "  - G: Drag the song through the playlist for ordering\n"
         "  - I: Force Song Restart\n"
+        "    - In Live MIDI mode this will simply turn off all notes without resetting controllers.\n"
         "  - O: Song Play/Pause\n"
         "  - P: Force Song Stop\n"
         "  - +=: Double the playback speed\n"
