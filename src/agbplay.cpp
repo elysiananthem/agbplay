@@ -18,8 +18,6 @@ static void help();
 
 int main(int argc, char *argv[]) 
 {
-    OS::CheckTerminal();
-
     if (!Debug::open(nullptr)) {
         std::cout << "Debug Init failed" << std::endl;
         return EXIT_FAILURE;
