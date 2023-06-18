@@ -39,13 +39,6 @@ void PlayerContext::ProcessMidi()
             // invalid status
             continue;
         }
-        // tempo
-        if (status == 0xFF && message[1] == 0x51) {
-            uint32_t mspt = (message[3] << 16) | (message[4] << 8) | message[5];
-            uint8_t bpm = static_cast<uint8_t>(60000000.0f / mspt / 2.0f);
-            reader.PlayLiveCommand(0xBB, bpm, 0, 0);
-            continue;
-        }
         if (status >= 0xF0) {
             // todo: parse meta / sysex
             continue;
@@ -93,6 +86,9 @@ void PlayerContext::ProcessMidi()
                 continue;
             case 24:    // tune
                 reader.PlayLiveCommand(0xC8, 0, sarg2, channel);
+                continue;
+            case 29:    // emulate tempo (bpm / 2)
+                reader.PlayLiveCommand(0xBB, uarg2, 0, 0);
                 continue;
             case 33:    // priority
                 reader.PlayLiveCommand(0xBA, uarg2, 0, channel);

@@ -22,7 +22,7 @@ agbplay <ROM.gba> [song table position] [MIDI port number]
 To list MIDI port numbers that can be used as the MIDI port number value, use `agbplay --help`.
 
 ```
-There are 9 MIDI input sources available.
+There are 3 MIDI input sources available.
   Input Port #1: IAC Driver Bus 1
   Input Port #2: IAC Driver Bus 2
   Input Port #3: CASIO USB-MIDI
@@ -32,24 +32,25 @@ When Live MIDI mode is enabled, normal song playback is disabled. Instead, the s
 
 #### MIDI reference
 
-* MIDI channel corresponds to track number (1-16).
-* Program change does as expected, however note that no sound will be produced until a program change is issued.
-* Pitch bend works as expected, however the resolution is limited to the upper 7-bits (-64 to 63). Bend range can be set with the BENDR control.
-* Control change
-  * **1**: Modulation depth (see settings below)
-  * **7**: Volume
-  * **10**: Pan 
-  * **20**: Pitch bend range
-  * **21**: Modulation speed
-  * **22**: Modulation type
-    * **0**: Vibrato
-    * **1**: Tremolo
-    * **2**: Auto pan
-  * **24**: Fine tune
-  * **26**: Modulation delay (ticks before mod kicks in)
-  * **33**: Polyphony note priority
-  * **123**: All notes off
-* Issuing extended commands like psuedo-echo aren't supported yet in Live MIDI mode.
+- MIDI channel corresponds to track number (1-16).
+- Program change does as expected, however note that no sound will be produced until a program change is issued.
+- Pitch bend works as expected, however the resolution is limited to the upper 7-bits (-64 to 63). Bend range can be set with the BENDR control.
+- Control change
+  - **1**: Modulation depth (see settings below)
+  - **7**: Volume
+  - **10**: Pan 
+  - **20**: Pitch bend range
+  - **21**: Modulation speed
+  - **22**: Modulation type
+    - **0**: Vibrato
+    - **1**: Tremolo
+    - **2**: Auto pan
+  - **24**: Fine tune
+  - **26**: Modulation delay (ticks before mod kicks in)
+  - **29**: Emulate tempo change (defaults to 150bpm). The value must be half the BPM (e.g., use value `60` for 120bpm). This is only used to determine tick timing, e.g., for modulation delay. (affects all channels)
+  - **33**: Polyphony note priority
+  - **123**: All notes off (affects all channels)
+- Issuing extended commands like psuedo-echo aren't supported yet in Live MIDI mode.
 
 ### Controls
 - Arrow Keys or HJKL: Navigate through the program
@@ -59,6 +60,7 @@ When Live MIDI mode is enabled, normal song playback is disabled. Instead, the s
 - T: Toggle whether the song should be output to a file (see R and E)
 - G: Drag the song through the playlist for ordering
 - I: Force song restart
+  - In Live MIDI mode this will simply turn off all notes without resetting controllers.
 - O: Song play/pause
 - P: Force song stop
 - +=: Double the playback speed
