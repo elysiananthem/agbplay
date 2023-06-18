@@ -30,20 +30,26 @@ const std::vector<PaHostApiTypeId> PlayerInterface::hostApiPriority = {
  * public PlayerInterface
  */
 
-PlayerInterface::PlayerInterface(TrackviewGUI& trackUI, size_t initSongPos)
+PlayerInterface::PlayerInterface(
+        TrackviewGUI &trackUI, size_t initSongPos, int midiPortNumber)
     : trackUI(trackUI),
     mutedTracks(ConfigManager::Instance().GetCfg().GetTrackLimit())
 {
+    rtmidiOpen(midiPortNumber);
     initContext();
-    ctx->InitSong(initSongPos);
+    ctx->InitSong(initSongPos, midiin != nullptr);
     setupLoudnessCalcs();
     portaudioOpen();
+    if (midiin != nullptr) {
+        Play();
+    }
 }
 
 PlayerInterface::~PlayerInterface() 
 {
     // stop and deallocate player thread if required
     Stop();
+    rtmidiClose();
     portaudioClose();
 }
 
@@ -51,7 +57,7 @@ void PlayerInterface::LoadSong(size_t songPos)
 {
     bool play = playerState == State::PLAYING;
     Stop();
-    ctx->InitSong(songPos);
+    ctx->InitSong(songPos, midiin != nullptr);
     setupLoudnessCalcs();
     // TODO replace this with pairs
     float vols[ctx->seq.tracks.size() * 2];
@@ -226,7 +232,8 @@ void PlayerInterface::initContext()
     ctx = std::make_unique<PlayerContext>(
             ConfigManager::Instance().GetMaxLoopsPlaylist(),
             cfg.GetTrackLimit(),
-            EnginePars(cfg.GetPCMVol(), cfg.GetEngineRev(), cfg.GetEngineFreq())
+            EnginePars(cfg.GetPCMVol(), cfg.GetEngineRev(), cfg.GetEngineFreq()),
+            midiin
             );
 }
 
@@ -240,7 +247,12 @@ void PlayerInterface::threadWorker()
         while (playerState != State::SHUTDOWN) {
             switch (playerState) {
             case State::RESTART:
-                ctx->InitSong(ctx->seq.GetSongHeaderPos());
+                if (midiin != nullptr) {
+                    ctx->KillAllChannels();
+                } else {
+                    ctx->InitSong(
+                            ctx->seq.GetSongHeaderPos(), midiin != nullptr);
+                }
                 playerState = State::PLAYING;
                 [[fallthrough]];
             case State::PLAYING:
@@ -280,8 +292,8 @@ void PlayerInterface::threadWorker()
             }
         }
         // reset song state after it has finished
-        ctx->InitSong(ctx->seq.GetSongHeaderPos());
     } catch (std::exception& e) {
+        ctx->InitSong(ctx->seq.GetSongHeaderPos(), midiin != nullptr);
         Debug::print("FATAL ERROR on streaming thread: %s", e.what());
     }
     masterLoudness.Reset();
@@ -369,3 +381,48 @@ void PlayerInterface::portaudioClose()
         Debug::print("Pa_CloseStream: %s", Pa_GetErrorText(err));
     }
 }
+
+// void midicallback(
+//         double deltatime, std::vector<unsigned char> *message, void
+//         *userData)
+// {
+//     unsigned int nBytes = message->size();
+//     for (unsigned int i = 0; i < nBytes; i++)
+//         std::cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
+//     if (nBytes > 0)
+//         std::cout << "stamp = " << deltatime << std::endl;
+// }
+
+void PlayerInterface::rtmidiOpen(int portNumber)
+{
+    if (portNumber < 0) {
+        midiin = nullptr;
+        return;
+    }
+
+    midiin = new RtMidiIn(RtMidi::UNSPECIFIED, "agbsnd", 65536);
+    // Check inputs.
+    unsigned int nPorts = midiin->getPortCount();
+    // std::cout << "\nThere are " << nPorts << " MIDI input sources
+    // available.\n";
+    if (portNumber >= nPorts) {
+        Debug::print(
+                "Cannot open MIDI input: Invalid port number %d", portNumber);
+        delete midiin;
+        midiin = nullptr;
+        return;
+    }
+    try {
+        midiPortName = midiin->getPortName(portNumber);
+        Debug::print("Using MIDI input: %s", midiPortName.c_str());
+        midiin->openPort(portNumber);
+
+    } catch (RtMidiError &error) {
+        Debug::print("Cannot open MIDI input: %s", error.getMessage().c_str());
+        delete midiin;
+        midiin = nullptr;
+        return;
+    }
+}
+
+void PlayerInterface::rtmidiClose() { delete midiin; }

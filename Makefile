@@ -1,8 +1,8 @@
 CXX = g++
-CXXFLAGS = -D_XOPEN_SOURCE=700 -Wall -Wextra -Wconversion -Wunreachable-code -std=c++17 -O3 -g
+CXXFLAGS = -D_XOPEN_SOURCE=700 -Wall -Wextra -Wconversion -Wunreachable-code -std=c++17 -O3 -g -I/opt/homebrew/include -mmacosx-version-min=13.0 
 #CXXFLAGS = -D_XOPEN_SOURCE=700 -Wall -Wextra -Wconversion -Wunreachable-code -std=c++17 -Og -g -fsanitize=address
 BINARY = agbplay
-LIBS = -lm -lncursesw -pthread -lsndfile -lportaudio -ljsoncpp
+LIBS = -lm -pthread -L/opt/homebrew/lib -lncurses -pthread -lsndfile -lportaudio -ljsoncpp -lrtmidi
 # Use this macro if you have linker errors with ncursesw
 # LIBS = -lm -lncurses -pthread -lsndfile -lportaudio -ljsoncpp
 
