@@ -47,9 +47,9 @@ When Live MIDI mode is enabled, normal song playback is disabled. Instead, the s
     - **2**: Auto pan
   - **24**: Fine tune
   - **26**: Modulation delay (ticks before mod kicks in)
-  - **29**: Emulate tempo change (defaults to 150bpm). The value must be half the BPM (e.g., use value `60` for 120bpm). This is only used to determine tick timing (like for modulation delay).
+  - **29**: Emulate tempo change (defaults to 150bpm). The value must be half the BPM (e.g., use value `60` for 120bpm). This is only used to determine tick timing, e.g., for modulation delay. (affects all channels)
   - **33**: Polyphony note priority
-  - **123**: All notes off
+  - **123**: All notes off (affects all channels)
 - Issuing extended commands like psuedo-echo aren't supported yet in Live MIDI mode.
 
 ### Controls
