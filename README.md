@@ -1,5 +1,5 @@
 ## agbplay with Live MIDI mode
-This is a fork of __agbplay__ that adds a Live MIDI mode for playing the synth directly with MIDI input.
+This is a fork of [__agbplay__](https://github.com/ipatix/agbplay) that adds a Live MIDI mode for playing the synth directly with MIDI input.
 
 __agbplay__ is a music player with Terminal interface for GBA ROMs that use
 the most common (mp2k/m4a) sound engine format. The code itself is written in
