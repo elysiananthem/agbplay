@@ -19,6 +19,7 @@ struct PlayerContext {
             RtMidiIn *midiin);
 
     void Process(std::vector<std::vector<sample>>& trackAudio);
+    // TODO pull this out into a separate class
     void ProcessMidi();
     void InitSong(size_t songPos, bool liveMode = false);
     bool HasEnded() const;
@@ -29,6 +30,7 @@ struct PlayerContext {
     Sequence seq;
     SoundBank bnk;
     EnginePars pars;
+    // TODO pull this out into a separate class
     RtMidiIn *midiin;
 
     // sound channels
